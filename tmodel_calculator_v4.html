@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>T-Model Fingerprint Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Code+Pro:wght@400;500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#1a2744;--navy-mid:#243260;--gold:#c9a84c;--gold-light:#e8c97a;
+  --cream:#f5f0e8;--cream-dark:#ede5d5;--slate:#4a5568;
+  --latent:#1a3a5c;--exemplar:#2d5a1a;
+  --latent-light:#e8f0f8;--exemplar-light:#eaf4e8;
+  --red:#8b2020;--green:#1a4731;--amber:#7a5c00;
+  --text:#1a1a2e;--border:#c9a84c44;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Libre Baskerville',Georgia,serif;background:var(--cream);color:var(--text);min-height:100vh;}
+header{background:var(--navy);padding:1.5rem 2rem;border-bottom:3px solid var(--gold);}
+header h1{font-family:'Playfair Display',serif;font-size:1.7rem;color:var(--cream);}
+header .sub{color:var(--gold-light);font-size:0.75rem;margin-top:0.2rem;font-style:normal;}
+header .subtitle{color:var(--gold-light);font-size:0.8rem;margin-top:0.3rem;font-style:italic;}
+.container{margin:0 auto;padding:1.5rem 1rem 4rem;}
+.section-label{font-family:'Playfair Display',serif;font-size:0.68rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:0.6rem;display:flex;align-items:center;gap:0.6rem;}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border);}
+.card{background:white;border:1px solid var(--border);border-radius:2px;padding:1.25rem;margin-bottom:1rem;box-shadow:0 2px 8px rgba(26,39,68,0.05);}
+.card h2{font-family:'Playfair Display',serif;font-size:0.95rem;color:var(--navy);margin-bottom:0.75rem;padding-bottom:0.5rem;border-bottom:1px solid var(--cream-dark);}
+.pop-row{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
+.pop-row label{font-size:0.85rem;color:var(--slate);}
+.pop-row input{font-family:'Source Code Pro',monospace;font-size:0.95rem;padding:0.4rem 0.6rem;border:1px solid #ccc;border-radius:2px;width:180px;background:var(--cream);}
+.pop-row input:focus{outline:none;border-color:var(--gold);}
+
+/* Paired table */
+.paired-wrap{overflow-x:auto;}
+.paired-table{width:100%;border-collapse:collapse;font-size:0.72rem;}
+.paired-table th{padding:0.35rem 0.45rem;text-align:left;font-family:'Playfair Display',serif;font-size:0.64rem;letter-spacing:0.06em;white-space:nowrap;border-bottom:2px solid #ddd;}
+.paired-table td{padding:0.28rem 0.35rem;border-bottom:1px solid var(--cream-dark);vertical-align:middle;}
+.paired-table tr:hover td{background:#fafaf5;}
+.col-lat{background:var(--latent-light);color:var(--latent);border-bottom:2px solid var(--latent);}
+.col-ex{background:var(--exemplar-light);color:var(--exemplar);border-bottom:2px solid var(--exemplar);}
+.col-agr{background:#f5f0ff;color:#4a2080;border-bottom:2px solid #9b72cf;}
+.col-num{background:#f8f8f5;color:#888;border-bottom:2px solid #ccc;}
+.paired-table select{font-family:'Source Code Pro',monospace;font-size:0.69rem;padding:0.22rem 0.3rem;border:1px solid #ccc;border-radius:2px;background:white;color:var(--navy);width:100%;}
+.paired-table select:focus{outline:none;border-color:var(--gold);}
+.del-btn{background:none;border:none;color:#ccc;cursor:pointer;font-size:0.9rem;padding:0 0.2rem;}
+.del-btn:hover{color:var(--red);}
+
+/* RF colours */
+select.rf-ex{border-color:#2d7a52!important;background:#f0faf5!important;}
+select.rf-go{border-color:#c9a84c!important;background:#fdf8ed!important;}
+select.rf-fa{border-color:#c07030!important;background:#fdf3e8!important;}
+select.rf-po{border-color:#8b2020!important;background:#fdf2f2!important;}
+select.rf-nv{border-color:#333!important;background:#333!important;color:#fff!important;}
+
+.agr-cell{font-family:'Source Code Pro',monospace;font-size:0.7rem;text-align:center;font-weight:600;padding:0.25rem 0.4rem;border-radius:2px;min-width:52px;display:inline-block;}
+
+.add-btn{display:inline-flex;align-items:center;gap:0.4rem;margin-top:0.7rem;padding:0.4rem 0.9rem;border:1px dashed #aaa;border-radius:2px;background:none;font-family:'Libre Baskerville',serif;font-size:0.75rem;color:var(--slate);cursor:pointer;transition:all 0.15s;}
+.add-btn:hover{border-color:var(--gold);color:var(--navy);background:var(--cream);}
+
+.rf-legend{display:flex;gap:0.9rem;flex-wrap:wrap;font-size:0.7rem;color:var(--slate);margin-bottom:0.6rem;align-items:center;}
+.rf-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:2px;}
+
+.calc-btn{display:block;width:100%;padding:0.9rem;background:var(--navy);color:var(--cream);border:none;border-radius:2px;font-family:'Playfair Display',serif;font-size:1rem;letter-spacing:0.05em;cursor:pointer;border-bottom:3px solid var(--gold);transition:background 0.2s;margin:1rem 0;}
+.calc-btn:hover{background:var(--navy-mid);}
+
+#results{display:none;}
+.t-summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.75rem;margin-bottom:1rem;}
+.t-box{border-radius:2px;padding:0.9rem 1rem;text-align:center;border-bottom:3px solid;}
+.t-box.lat{background:var(--latent-light);border-color:var(--latent);}
+.t-box.ex{background:var(--exemplar-light);border-color:var(--exemplar);}
+.t-box.used{background:var(--navy);border-color:var(--gold);}
+.t-box .tb-label{font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:0.3rem;}
+.t-box.lat .tb-label{color:var(--latent);}
+.t-box.ex .tb-label{color:var(--exemplar);}
+.t-box.used .tb-label{color:var(--gold-light);}
+.t-box .tb-val{font-family:'Source Code Pro',monospace;font-size:1rem;font-weight:600;}
+.t-box.lat .tb-val{color:var(--latent);}
+.t-box.ex .tb-val{color:var(--exemplar);}
+.t-box.used .tb-val{color:white;}
+
+.verdict{padding:0.9rem 1.1rem;border-radius:2px;margin-bottom:1rem;border-left:4px solid;}
+.verdict.v-id{background:#fdf2f2;border-color:var(--red);color:var(--red);}
+.verdict.v-border{background:#fdf8ed;border-color:var(--gold);color:var(--amber);}
+.verdict.v-insuff{background:#f0f9f4;border-color:#2d7a52;color:var(--green);}
+.verdict-title{font-family:'Playfair Display',serif;font-size:0.95rem;font-weight:700;margin-bottom:0.3rem;}
+.verdict p{font-size:0.8rem;line-height:1.6;}
+
+.suff-table{width:100%;border-collapse:collapse;font-size:0.76rem;margin-top:0.75rem;}
+.suff-table th{background:var(--navy);color:var(--gold-light);padding:0.4rem 0.6rem;text-align:left;font-family:'Playfair Display',serif;font-size:0.68rem;letter-spacing:0.06em;}
+.suff-table td{padding:0.35rem 0.6rem;border-bottom:1px solid var(--cream-dark);}
+.suff-table tr:nth-child(even) td{background:#fafaf7;}
+.suff-pill{display:inline-block;padding:0.15rem 0.5rem;border-radius:10px;font-size:0.68rem;font-weight:700;font-family:'Source Code Pro',monospace;}
+.pill-yes{background:#e6f4ec;color:#1a5c32;border:1px solid #2d7a52;}
+.pill-border{background:#fdf8ed;color:#7a5c00;border:1px solid #c9a84c;}
+.pill-no{background:#fdf2f2;color:#8b2020;border:1px solid #c04040;}
+
+.breakdown{font-family:'Source Code Pro',monospace;font-size:0.71rem;background:var(--cream);border:1px solid var(--cream-dark);padding:0.9rem;border-radius:2px;line-height:1.85;color:var(--slate);margin-bottom:1rem;white-space:pre-wrap;}
+#case-record{background:white;border:1px solid var(--cream-dark);padding:1.25rem;border-radius:2px;font-size:0.8rem;line-height:1.8;}
+#case-record h3{font-family:'Playfair Display',serif;font-size:0.95rem;color:var(--navy);margin-bottom:0.6rem;padding-bottom:0.4rem;border-bottom:1px solid var(--cream-dark);}
+.action-btns{margin-top:0.75rem;display:flex;gap:0.5rem;flex-wrap:wrap;}
+.print-btn{padding:0.5rem 1.2rem;background:white;border:1px solid var(--navy);border-radius:2px;font-family:'Libre Baskerville',serif;font-size:0.8rem;cursor:pointer;color:var(--navy);}
+.reset-btn{padding:0.5rem 1.2rem;background:var(--cream);border:1px solid #ccc;border-radius:2px;font-family:'Libre Baskerville',serif;font-size:0.8rem;cursor:pointer;color:var(--slate);}
+.warn{font-size:0.7rem;color:var(--amber);background:#fdf8ed;border:1px solid #e8c97a55;padding:0.5rem 0.75rem;border-radius:2px;margin-top:0.6rem;}
+@media print{
+  header,.card:not(#results-card),.calc-btn,.action-btns,.section-label{display:none!important;}
+  #results{display:block!important;}
+  body{background:white;}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>T-Model Fingerprint Calculator</h1>
+  <p class="sub">Version 10.0 by Henry Templeman</p>
+  <p class="subtitle">Fingerprint lookalike estimation based on relevant population</p>
+</header>
+<div class="container">
+
+  <div class="section-label">Step 1 — Population</div>
+  <div class="card">
+    <h2>Relevant Population Size</h2>
+    <div class="pop-row">
+      <label>Number of fingerprints in population:</label>
+      <input type="number" id="population" value="3000000000" min="1">
+    </div>
+    <p style="font-size:0.7rem;color:#888;font-style:italic;margin-top:0.35rem;">Used in formula: L = 120 × N / (T × log₁₀T). e.g. 3,000,000,000 = 300M people × 10 fingers (national default); 5,300,000,000 = FBI NGI database.</p>
+  </div>
+
+  <div class="rf-legend">
+    <strong style="font-size:0.7rem;color:var(--navy);">Clarity/Reliability Grade:</strong>
+    <span><span class="rf-dot" style="background:#2d7a52"></span>Grade A = 1.00</span>
+    <span><span class="rf-dot" style="background:#c9a84c"></span>Grade B = 0.75</span>
+    <span><span class="rf-dot" style="background:#c07030"></span>Grade C = 0.50</span>
+    <span><span class="rf-dot" style="background:#8b2020"></span>Grade D = 0.25</span>
+    <span><span class="rf-dot" style="background:#333"></span>Grade F = excluded</span>
+    &nbsp;&nbsp;
+    <strong style="font-size:0.7rem;color:var(--navy);">Agreement:</strong>
+    <span><span class="rf-dot" style="background:#2d7a52"></span>Excellent = 1.0</span>
+    <span><span class="rf-dot" style="background:#c07030"></span>Satisfactory = 0.50</span>
+    <span><span class="rf-dot" style="background:#333"></span>Unsatisfactory = excluded</span>
+  </div>
+
+  <div class="section-label">Step 2 — Feature Pairs (one feature per row)</div>
+  <div class="card" style="border-left:4px solid #c9a84c;background:#fffdf5;">
+    <h2 style="color:#7a5c00;">&#9888; Elasticity Threshold Prerequisite</h2>
+    <p style="font-size:0.82rem;line-height:1.7;color:#4a3800;">Before entering any feature pairs, confirm that <strong>all corresponding features have been assessed against the T-Model friction ridge skin elasticity thresholds:</strong></p>
+    <ul style="font-size:0.8rem;line-height:1.9;color:#4a3800;margin-left:1.2rem;margin-top:0.4rem;">
+      <li><strong>Linear displacement:</strong> The distance between corresponding features in the latent and exemplar must not differ by more than <strong>20%</strong> of the measured distance. Use a millimeter ruler to measure and confirm, if needed.</li>
+      <li><strong>Rotational displacement:</strong> The directional difference between corresponding features must not exceed <strong>10 degrees</strong>. Use a protractor to measure and confirm, if needed.</li>
+      <li><strong>Features that exceed either threshold are discrepancies, not correspondences</strong> — they must be excluded from the calculation entirely and should not be entered below.</li>
+      <li><strong>Connectivity disagreements</strong> (one impression shows an ending ridge, the other a bifurcation, at the same spatial location) that are within spatial tolerance should be entered with a <em>Satisfactory</em> agreement rating.</li>
+    </ul>
+    <p style="font-size:0.75rem;color:#7a5c00;margin-top:0.5rem;font-style:italic;">Document all elasticity threshold measurements in the case record before proceeding. See Chapter 8 for full guidance.</p>
+    <div style="margin-top:0.75rem;">
+      <button onclick="toggleHelp()" id="help-btn" style="background:none;border:1px solid #c9a84c;border-radius:2px;padding:0.35rem 0.8rem;font-family:'Libre Baskerville',serif;font-size:0.75rem;color:#7a5c00;cursor:pointer;">&#9660; How to Measure Linear and Rotational Displacement</button>
+      <div id="help-panel" style="display:none;margin-top:0.75rem;background:#fffef5;border:1px solid #e8c97a55;border-radius:2px;padding:1rem;">
+
+        <p style="font-size:0.8rem;font-weight:700;color:#4a3800;margin-bottom:0.5rem;">Measuring Linear Displacement</p>
+        <ol style="font-size:0.78rem;line-height:1.85;color:#4a3800;margin-left:1.2rem;">
+          <li>Identify the corresponding feature pair in both the latent and exemplar impressions.</li>
+          <li>Select a consistent reference point on each feature — for example, the tip of an ending ridge or the junction point of a bifurcation.</li>
+          <li>Identify a second reference point in each impression — ideally the nearest Level 2 neighbor used for the intervening ridge count.</li>
+          <li>Using a millimeter ruler, measure the distance between the two reference points in the <strong>latent</strong> impression. Record this measurement.</li>
+          <li>Measure the same distance between the corresponding reference points in the <strong>exemplar</strong> impression. Record this measurement.</li>
+          <li>Calculate the percentage difference:<br>
+            <span style="font-family:'Source Code Pro',monospace;font-size:0.75rem;background:#f5f0e8;padding:0.2rem 0.4rem;border-radius:2px;display:inline-block;margin-top:0.2rem;">
+              % difference = (larger &minus; smaller) &divide; larger &times; 100
+            </span>
+          </li>
+          <li>If the result <strong>exceeds 20%</strong>, the feature fails the linear displacement threshold. It is a discrepancy and must be <strong>excluded</strong> from the calculation. Do not enter it below.</li>
+          <li>If the result is <strong>20% or less</strong>, the feature is within tolerance. Proceed to assess rotational displacement.</li>
+        </ol>
+
+        <p style="font-size:0.8rem;font-weight:700;color:#4a3800;margin-top:0.85rem;margin-bottom:0.5rem;">Measuring Rotational Displacement</p>
+        <ol style="font-size:0.78rem;line-height:1.85;color:#4a3800;margin-left:1.2rem;">
+          <li>Identify the corresponding feature pair in both impressions.</li>
+          <li>Establish the directional axis of the feature in each impression:<br>
+            &mdash; For an <strong>ending ridge</strong>: the direction the ridge tail points.<br>
+            &mdash; For a <strong>bifurcation</strong>: the direction of the stem before it divides.<br>
+            &mdash; For a <strong>dot</strong>: rotational displacement is not applicable.</li>
+          <li>Using a protractor, measure the angle of the feature's directional axis relative to a consistent reference direction (e.g. the horizontal axis of the print) in the <strong>latent</strong>. Record the angle.</li>
+          <li>Measure the same angle in the <strong>exemplar</strong>. Record the angle.</li>
+          <li>Calculate the difference between the two angles.</li>
+          <li>If the difference <strong>exceeds 10 degrees</strong>, the feature fails the rotational displacement threshold. It is a discrepancy and must be <strong>excluded</strong> from the calculation. Do not enter it below.</li>
+          <li>If the difference is <strong>10 degrees or less</strong>, the feature is within rotational tolerance and may be included in the calculation.</li>
+        </ol>
+
+        <p style="font-size:0.75rem;color:#7a5c00;margin-top:0.75rem;font-style:italic;">Note: A feature that passes both the linear and rotational threshold tests is eligible for inclusion. A feature that fails either test is a discrepancy and must be excluded entirely — there is no partial credit for a feature that almost satisfies either threshold. Document all measurements in the case record.</p>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Paired Feature Entry</h2>
+    <p style="font-size:0.72rem;color:var(--slate);margin-bottom:0.75rem;">Enter one ridge feature per row. Each row represents one matched feature pair — latent on the left, exemplar on the right. Select the feature type and Intervening Ridge Count to Nearest Neighbor (IR) independently for each side. If any grade is F or agreement is Unsatisfactory, that feature pair is excluded entirely.</p>
+
+    <div class="paired-wrap">
+    <table class="paired-table" id="paired-table">
+      <thead>
+        <tr>
+          <th class="col-num" rowspan="2" style="text-align:center;">#</th>
+          <th class="col-lat" colspan="4" style="text-align:center;">LATENT PRINT — one feature</th>
+          <th class="col-ex" colspan="4" style="text-align:center;">EXEMPLAR PRINT — matching feature</th>
+          <th class="col-agr" rowspan="2" style="text-align:center;">Agreement<br><span style="font-size:0.6rem;font-weight:400;">(select)</span></th>
+          <th rowspan="2" style="text-align:center;background:#1F4E79;color:#fff;font-size:0.7rem;padding:0.3rem 0.4rem;border-radius:2px;">Combined<br>Pair Value</th>
+          <th class="col-num" rowspan="2"></th>
+        </tr>
+        <tr>
+          <th class="col-lat">Feature Type</th>
+          <th class="col-lat">IR</th>
+          <th class="col-lat">Clarity/Reliability<br>Grade</th>
+          <th class="col-lat">Per-Feature<br>Value</th>
+          <th class="col-ex">Feature Type</th>
+          <th class="col-ex">IR</th>
+          <th class="col-ex">Clarity/Reliability<br>Grade</th>
+          <th class="col-ex">Per-Feature<br>Value</th>
+        </tr>
+      </thead>
+      <tbody id="paired-body"></tbody>
+    </table>
+    </div>
+    <button class="add-btn" onclick="addRow()">+ Add Feature Pair</button>
+    <div class="warn">
+      * 6+ IR values are extrapolations of the confirmed pattern and have not been validated through close match experiments. Flag in case record.<br>
+      ‡ Not validated by close match experiments. Value based on frequency of occurrence study only.<br>
+      ‡‡ The following feature types have <strong>not been validated by close match experiments</strong>: continuous ridge units, pores, creases, scars, trifurcations, and incipient ending ridge units.
+    </div>
+  </div>
+
+  <button class="calc-btn" onclick="calculate()">Calculate T-Model Output</button>
+
+  <div id="results">
+    <div class="section-label">Results</div>
+    <div class="card" id="results-card">
+      <div class="t-summary">
+        <div class="t-box lat"><div class="tb-label">T Value (Combined)</div><div class="tb-val" id="r-lat-t">—</div></div>
+        <div class="t-box ex" style="display:none;"><div class="tb-label">Exemplar T Value</div><div class="tb-val" id="r-ex-t">—</div></div>
+        <div class="t-box used"><div class="tb-label">T Value → L Value</div><div class="tb-val" id="r-l">—</div></div>
+      </div>
+      <div id="verdict-box" class="verdict"></div>
+      <h2 style="margin-bottom:0.6rem;">Sufficiency Across Reference Populations</h2>
+      <table class="suff-table"><thead><tr>
+        <th>Population</th><th>Description</th><th>L Value</th><th>Sufficiency</th>
+      </tr></thead><tbody id="suff-body"></tbody></table>
+      <h2 style="margin-top:1rem;margin-bottom:0.6rem;">Feature Breakdown</h2>
+      <div class="breakdown" id="breakdown-text"></div>
+      <h2 style="margin-bottom:0.6rem;">Case Record Summary</h2>
+      <div id="case-record"></div>
+      <div class="action-btns">
+        <button class="print-btn" onclick="window.print()">Print Case Record</button>
+        <button class="reset-btn" onclick="resetAll()">Reset Calculator</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const FEATURE_TYPES=[
+  {id:'cr',       label:'Continuous Ridge Unit (1.15)',                      base:1.15,  hasIR:false, note:'‡'},
+  {id:'er_nf',    label:'Ending Ridge — Not in Funnel (14.25)',         base:14.25, hasIR:true,  note:''},
+  {id:'er_f',     label:'Ending Ridge — In Funnel (10)',                base:10,    hasIR:true,  note:''},
+  {id:'er_bif_nf', label:'Ending/Bifurcating Ridge — Not in Funnel (20.5)',  base:20.5,  hasIR:true,  note:''},
+  {id:'er_bif_f',  label:'Ending/Bifurcating Ridge — In Funnel (14.375)',    base:14.375,hasIR:true,  note:''},
+  {id:'ier',      label:'Incipient Ending Ridge (1,360)',                     base:1360,  hasIR:true,  note:'‡'},
+  {id:'bif_nf',   label:'Bifurcating Ridge — Not in Funnel (26.75)',    base:26.75, hasIR:true,  note:''},
+  {id:'bif_f',    label:'Bifurcating Ridge — In Funnel (18.75)',        base:18.75, hasIR:true,  note:''},
+  {id:'dot',      label:'Single Dot (40)',                                    base:40,    hasIR:true,  note:''},
+  {id:'cl2',      label:'Cluster Dot — 2 dots (total: 100)',            base:10,    hasIR:false, clusterN:2, clusterTotal:100,  note:''},
+  {id:'cl3',      label:'Cluster Dot — 3 dots (total: 216)',            base:6,     hasIR:false, clusterN:3, clusterTotal:216,  note:''},
+  {id:'cl4',      label:'Cluster Dot — 4 dots (total: 410)',            base:4.5,   hasIR:false, clusterN:4, clusterTotal:410,  note:''},
+  {id:'cl5',      label:'Cluster Dot — 5 dots (total: 1,024)',          base:5,     hasIR:false, clusterN:5, clusterTotal:1024, note:''},
+  {id:'cl6',      label:'Cluster Dot — 6 dots (total: 2,780)',          base:3.75,  hasIR:false, clusterN:6, clusterTotal:2780, note:''},
+  {id:'delta_y',  label:'Delta — Y-Shaped (190)',                       base:190,   hasIR:false, note:''},
+  {id:'delta_ny', label:'Delta — Non-Y Shaped (570)',                   base:570,   hasIR:false, note:''},
+  {id:'core',     label:'Core Region (209)',                                  base:209,   hasIR:false, note:''},
+  {id:'trif',     label:'Trifurcation (23,136)',                             base:23136, hasIR:true,  note:'‡'},
+  {id:'scar',     label:'Scar ≥2mm (7,712)',                            base:7712,  hasIR:false, note:'‡'},
+  {id:'crease',   label:'Crease ≥2mm (472)',                            base:472,   hasIR:false, note:'‡'},
+  {id:'pore',     label:'Pore (5)',                                           base:5,     hasIR:false, note:'‡'},
+];
+
+const IR_OPTS=[
+  {v:'1',       l:'0\u20132 IR'},
+  {v:'4',       l:'3 IR'},
+  {v:'10',      l:'4 IR'},
+  {v:'62',      l:'5 IR'},
+  {v:'968',     l:'6 IR *'},
+  {v:'37812',   l:'7 IR *'},
+  {v:'3692578', l:'8 IR *'},
+];
+
+const RF_OPTS=[
+  {v:'1',    l:'Grade A \u2014 No Distortion (1.00)'},
+  {v:'0.75', l:'Grade B \u2014 Low Distortion (0.75)'},
+  {v:'0.5',  l:'Grade C \u2014 Moderate Distortion (0.50)'},
+  {v:'0.25', l:'Grade D \u2014 High Distortion (0.25)'},
+  {v:'0',    l:'Grade F \u2014 Very High Distortion (no value)'},
+];
+
+const AGR_OPTS=[
+  {v:'1',   l:'Excellent (1.0)'},
+  {v:'0.5', l:'Satisfactory (0.50)'},
+  {v:'0',   l:'Unsatisfactory \u2014 excluded'},
+];
+
+const POPS=[
+  {n:1e3,   desc:'100 people (1,000 fingerprints)'},
+  {n:1e4,   desc:'1,000 people (10,000 fingerprints)'},
+  {n:1e5,   desc:'10,000 people (100,000 fingerprints)'},
+  {n:1e6,   desc:'100,000 people (1,000,000 fingerprints)'},
+  {n:1e7,   desc:'1 million people (10,000,000 fingerprints)'},
+  {n:1e8,   desc:'10 million people (100,000,000 fingerprints)'},
+  {n:1e9,   desc:'100 million people (1,000,000,000 fingerprints)'},
+  {n:1e10,  desc:'1 billion people (10,000,000,000 fingerprints)'},
+  {n:1e11,  desc:'10 billion people (100,000,000,000 fingerprints)'},
+];
+
+let rowCount=0;
+
+function makeSelect(id,opts,onch,cls){
+  let s=`<select id="${id}" class="${cls||''}" onchange="${onch||''}">`;
+  opts.forEach(o=>s+=`<option value="${o.v}">${o.l}</option>`);
+  return s+'</select>';
+}
+
+function makeFtSelect(id,onch){
+  let s=`<select id="${id}" onchange="${onch||''}" style="min-width:160px;">`;
+  FEATURE_TYPES.forEach(f=>s+=`<option value="${f.id}">${f.label}${f.note?' '+f.note:''}</option>`);
+  return s+'</select>';
+}
+
+function toggleHelp(){
+  const panel=document.getElementById('help-panel');
+  const btn=document.getElementById('help-btn');
+  if(panel.style.display==='none'){
+    panel.style.display='block';
+    btn.innerHTML='&#9650; How to Measure Linear and Rotational Displacement';
+  } else {
+    panel.style.display='none';
+    btn.innerHTML='&#9660; How to Measure Linear and Rotational Displacement';
+  }
+}
+
+function addRow(){
+  const tbody=document.getElementById('paired-body');
+  const n=++rowCount;
+  const rid='row'+n;
+  const tr=document.createElement('tr');
+  tr.id=rid;
+  const agrcb=`updateAgr('${rid}')`;
+  const lftId=rid+'_lft', lirId=rid+'_lir', lgrId=rid+'_lgr';
+  const eftId=rid+'_eft', eirId=rid+'_eir', egrId=rid+'_egr';
+  const agrSelId=rid+'_agr_sel', agrId=rid+'_agr', rfId=rid+'_rf';
+  const lvalId=rid+'_lval', evalId=rid+'_eval', pairValId=rid+'_pairval';
+
+  tr.innerHTML=`
+    <td style="text-align:center;color:#aaa;font-size:0.65rem;">${n}</td>
+    <td style="min-width:165px;">${makeFtSelect(lftId,`onFtChange('${lftId}','${rid}_lircell')`)}</td>
+    <td id="${rid}_lircell" style="min-width:85px;">${makeSelect(lirId,IR_OPTS,`updateVal('${rid}')`)}</td>
+    <td>${makeSelect(lgrId,RF_OPTS,agrcb,'rf-sel')}</td>
+    <td style="text-align:center;"><span id="${lvalId}" class="agr-cell" style="background:#f0f4ff;color:#1a2744;font-size:0.68rem;">—</span></td>
+    <td style="min-width:165px;">${makeFtSelect(eftId,`onFtChange('${eftId}','${rid}_eircell')`)}</td>
+    <td id="${rid}_eircell" style="min-width:85px;">${makeSelect(eirId,IR_OPTS,`updateVal('${rid}')`)}</td>
+    <td>${makeSelect(egrId,RF_OPTS,agrcb,'rf-sel')}</td>
+    <td style="text-align:center;"><span id="${evalId}" class="agr-cell" style="background:#f0f4ff;color:#1a2744;font-size:0.68rem;">—</span></td>
+    <td>${makeSelect(agrSelId,AGR_OPTS,agrcb,'rf-sel')}</td>
+    <td style="text-align:center;"><span id="${pairValId}" class="agr-cell" style="background:#1F4E79;color:#fff;font-size:0.68rem;min-width:64px;">—</span></td>
+    <td><button class="del-btn" onclick="delRow('${rid}')">&#x2715;</button></td>
+  `;
+  tbody.appendChild(tr);
+  onFtChange(lftId,rid+'_lircell');
+  onFtChange(eftId,rid+'_eircell');
+  [lgrId,egrId,agrSelId].forEach(id=>colorRFsilent(document.getElementById(id)));
+  updateVal(rid);
+}
+
+function onFtChange(ftId,cellId){
+  const sel=document.getElementById(ftId);
+  const cell=document.getElementById(cellId);
+  if(!sel||!cell)return;
+  const ft=FEATURE_TYPES.find(f=>f.id===sel.value);
+  const irId=cellId.replace('cell','');
+  if(ft&&ft.hasIR) cell.innerHTML=makeSelect(irId,IR_OPTS,`updateVal('${cellId.replace(/_lircell|_eircell/,'').replace('_lir','').replace('_eir','')}${cellId.includes('lirc')?'':''}')`)+'';
+  else cell.innerHTML='<span style="color:#bbb;font-size:0.68rem;font-style:italic;">N/A</span>';
+  // extract rid
+  const rid=ftId.replace('_lft','').replace('_eft','');
+  updateVal(rid);
+}
+
+function getPerVal(rid,side){
+  const ftSel=document.getElementById(rid+'_'+side+'ft');
+  if(!ftSel)return 0;
+  const ft=FEATURE_TYPES.find(f=>f.id===ftSel.value);
+  if(!ft)return 0;
+  let base=ft.clusterN?ft.clusterTotal:ft.base;
+  let irVal=1;
+  if(ft.hasIR){
+    const ircell=document.getElementById(rid+'_'+side+'ircell');
+    const irSel=ircell?ircell.querySelector('select'):null;
+    if(irSel)irVal=parseFloat(irSel.value);
+  }
+  // per-feature value before RF = base * irVal (for non-cluster) or clusterTotal (for cluster)
+  if(ft.clusterN) return ft.clusterTotal;
+  return base*irVal;
+}
+
+function updateVal(rid){
+  const lv=getPerVal(rid,'l');
+  const ev=getPerVal(rid,'e');
+  const lvalEl=document.getElementById(rid+'_lval');
+  const evalEl=document.getElementById(rid+'_eval');
+  if(lvalEl) lvalEl.textContent=lv>0?fmt(lv):'—';
+  if(evalEl) evalEl.textContent=ev>0?fmt(ev):'—';
+  updateAgr(rid);
+}
+
+function colorRF(sel){if(!sel)return;colorRFsilent(sel);const rid=sel.id.match(/row\d+/);if(rid)updateAgr(rid[0]);}
+
+function colorRFsilent(sel){
+  if(!sel)return;
+  sel.className='rf-sel';
+  const v=sel.value;
+  if(v==='1')sel.classList.add('rf-ex');
+  else if(v==='0.75')sel.classList.add('rf-go');
+  else if(v==='0.5')sel.classList.add('rf-fa');
+  else if(v==='0.25')sel.classList.add('rf-po');
+  else sel.classList.add('rf-nv');
+}
+
+function updateAgr(rid){
+  const lgrEl=document.getElementById(rid+'_lgr');
+  const egrEl=document.getElementById(rid+'_egr');
+  const agrSelEl=document.getElementById(rid+'_agr_sel');
+  if(!lgrEl)return;
+  [lgrEl,egrEl,agrSelEl].forEach(colorRFsilent);
+  const lgr=parseFloat(lgrEl.value);
+  const egr=parseFloat(egrEl.value);
+  const agrSel=agrSelEl?parseFloat(agrSelEl.value):1;
+  const excluded=lgr===0||egr===0||agrSel===0;
+  const agrEl=document.getElementById(rid+'_agr');
+  const pairValEl=document.getElementById(rid+'_pairval');
+  const tr=lgrEl.closest('tr');
+  if(excluded){
+    if(agrEl){agrEl.textContent='EXCLUDED';agrEl.style.cssText='background:#333;color:#fff;font-size:0.65rem;';}
+    if(pairValEl){pairValEl.textContent='EXCL';pairValEl.style.cssText='background:#8b2020;color:#fff;font-size:0.65rem;min-width:64px;display:inline-block;text-align:center;font-weight:700;padding:0.25rem 0.4rem;border-radius:2px;';}
+    if(tr)tr.style.opacity='0.45';
+  } else {
+    const agrComputed=lgr*egr*agrSel;
+    if(agrEl){
+      agrEl.textContent=agrComputed.toFixed(4);
+      if(agrComputed>=1)agrEl.style.cssText='background:#e6f4ec;color:#1a5c32;';
+      else if(agrComputed>=0.5)agrEl.style.cssText='background:#fdf8ed;color:#7a5c00;';
+      else agrEl.style.cssText='background:#fdf2f2;color:#8b2020;';
+    }
+    // Compute combined pair value: lower shape × latGrade × exGrade × agreement
+    const lv=getPerVal(rid,'l');
+    const ev=getPerVal(rid,'e');
+    const lowerBase=Math.min(lv,ev);
+    const lowerGrade=Math.min(lgr,egr);
+    const pairVal=lowerBase*lgr*egr*agrSel;
+    if(pairValEl){
+      pairValEl.textContent=fmt(pairVal);
+      pairValEl.style.cssText='background:#1F4E79;color:#fff;font-size:0.68rem;min-width:64px;display:inline-block;text-align:center;font-weight:700;padding:0.25rem 0.4rem;border-radius:2px;';
+    }
+    if(tr)tr.style.opacity='1';
+  }
+}
+
+function delRow(rid){const el=document.getElementById(rid);if(el)el.remove();}
+
+function fmt(n){
+  if(n===0)return '0';
+  if(n>=1e15)return n.toExponential(4);
+  if(n>=1e9)return n.toExponential(3);
+  return n.toLocaleString('en-US',{maximumFractionDigits:4});
+}
+function fmtL(n){
+  if(n<0.0001)return '< 0.0001';
+  if(n>=1e9)return n.toExponential(3);
+  return n.toLocaleString('en-US',{maximumFractionDigits:6});
+}
+function fmtPop(n){
+  if(n>=1e9)return (n/1e9).toLocaleString('en-US',{maximumFractionDigits:1})+' billion';
+  if(n>=1e6)return (n/1e6).toLocaleString('en-US',{maximumFractionDigits:1})+' million';
+  if(n>=1e3)return (n/1e3).toLocaleString('en-US',{maximumFractionDigits:0})+',000';
+  return n.toLocaleString();
+}
+function calcL(T,N){
+  const logT=Math.log10(T);
+  if(logT<=0)return Infinity;
+  return(120*N)/(T*logT);
+}
+
+function getRowData(tr){
+  const rid=tr.id;
+  const lftSel=document.getElementById(rid+'_lft');
+  const eftSel=document.getElementById(rid+'_eft');
+  const lft=FEATURE_TYPES.find(f=>f.id===(lftSel?lftSel.value:'er_f'))||FEATURE_TYPES[1];
+  const eft=FEATURE_TYPES.find(f=>f.id===(eftSel?eftSel.value:'er_f'))||FEATURE_TYPES[1];
+
+  function getIR(cellId){
+    const cell=document.getElementById(cellId);
+    if(!cell)return{v:1,l:'0\u20132 IR',extrap:false};
+    const sel=cell.querySelector('select');
+    if(!sel)return{v:1,l:'N/A',extrap:false};
+    const v=parseFloat(sel.value);
+    return{v,l:IR_OPTS.find(o=>o.v===sel.value)?.l||'',extrap:v>=968};
+  }
+  const lIR=getIR(rid+'_lircell');
+  const eIR=getIR(rid+'_eircell');
+
+  const lgr=parseFloat(document.getElementById(rid+'_lgr')?.value||1);
+  const egr=parseFloat(document.getElementById(rid+'_egr')?.value||1);
+  const agrSel=parseFloat(document.getElementById(rid+'_agr_sel')?.value||1);
+  const excluded=lgr===0||egr===0||agrSel===0;
+  const agr=excluded?0:lgr*egr*agrSel;
+  // Per-feature value: for clusters use clusterTotal; for others shape*IR
+  function perVal(ft,ir){
+    if(ft.clusterN)return ft.clusterTotal;
+    return ft.base*ir.v;
+  }
+  const latBase=perVal(lft,lIR);
+  const exBase=perVal(eft,eIR);
+
+  // Conservative approach: use lower shape value, lower clarity grade, times agreement
+  const lowerBase=Math.min(latBase,exBase);
+  const lowerGrade=Math.min(lgr,egr);
+  // combinedDiscrim = lowerBase × latGrade × exGrade × agrSel (both clarity grades multiplied)
+  const combinedRF=excluded?0:lgr*egr*agrSel;
+  const combinedDiscrim=excluded?0:lowerBase*combinedRF;
+
+  // Keep latRF/exRF/latDiscrim/exDiscrim for display purposes only
+  const latRF=excluded?0:lgr*agr;
+  const exRF=excluded?0:egr*agr;
+  const latDiscrim=excluded?0:latBase*latRF;
+  const exDiscrim=excluded?0:exBase*exRF;
+  const extrapolated=lIR.extrap||eIR.extrap;
+  const bestEst=lft.note==='‡'||eft.note==='‡';
+  return{lft,eft,lIR,eIR,lgr,egr,agrSel,agr,latRF,exRF,latBase,exBase,latDiscrim,exDiscrim,combinedDiscrim,lowerBase,lowerGrade,combinedRF,extrapolated,bestEst,excluded};
+}
+
+function calculate(){
+  const pop=parseFloat(document.getElementById('population').value)||3000000000;
+  const rows=document.getElementById('paired-body').querySelectorAll('tr');
+  if(rows.length===0){alert('Please add at least one feature pair.');return;}
+
+  let latT=1,exT=1,lines=[],caseRows=[],hasExtrap=false,hasBest=false,excludedRows=[];
+
+  rows.forEach((tr,i)=>{
+    const d=getRowData(tr);
+    if(d.excluded){
+      excludedRows.push(`  ${i+1}. Latent: ${d.lft.label} | Exemplar: ${d.eft.label} — EXCLUDED`);
+      caseRows.push({latLabel:d.lft.label+(d.lft.hasIR?', '+d.lIR.l:''),exLabel:d.eft.label+(d.eft.hasIR?', '+d.eIR.l:''),lgr:d.lgr,egr:d.egr,agrSel:d.agrSel,agr:0,latRF:0,exRF:0,latBase:d.latBase,exBase:d.exBase,latDiscrim:0,exDiscrim:0,bestEst:d.bestEst,extrap:d.extrapolated,excluded:true});
+      return;
+    }
+    latT*=d.combinedDiscrim;
+    exT*=d.combinedDiscrim;
+    if(d.extrapolated)hasExtrap=true;
+    if(d.bestEst)hasBest=true;
+    const agrLabel=d.agrSel===1?'Excellent':d.agrSel===0.5?'Satisfactory':'—';
+    const lgrL=d.lgr===1?'A':d.lgr===0.75?'B':d.lgr===0.5?'C':d.lgr===0.25?'D':'F';
+    const egrL=d.egr===1?'A':d.egr===0.75?'B':d.egr===0.5?'C':d.egr===0.25?'D':'F';
+    const lowerGrL=d.lowerGrade===1?'A':d.lowerGrade===0.75?'B':d.lowerGrade===0.5?'C':d.lowerGrade===0.25?'D':'F';
+    lines.push(`${i+1}. Latent: ${d.lft.label}${d.lft.hasIR?' ['+d.lIR.l+']':''} | Exemplar: ${d.eft.label}${d.eft.hasIR?' ['+d.eIR.l+']':''}`);
+    lines.push(`   Latent   — Shape: ${fmt(d.latBase)}  Grade: ${lgrL}(${d.lgr})`);
+    lines.push(`   Exemplar — Shape: ${fmt(d.exBase)}  Grade: ${egrL}(${d.egr})`);
+    lines.push(`   Conservative: Shape=${fmt(d.lowerBase)} (lower)  Lat Grade=${lgrL}(${d.lgr})  Ex Grade=${egrL}(${d.egr})  Agreement=${d.agrSel} (${agrLabel})`);
+    lines.push(`   Combined pair value: ${fmt(d.lowerBase)} × ${d.lgr} × ${d.egr} × ${d.agrSel} = ${fmt(d.combinedDiscrim)}`);
+    lines.push('');
+    caseRows.push({latLabel:d.lft.label+(d.lft.hasIR?', '+d.lIR.l:''),exLabel:d.eft.label+(d.eft.hasIR?', '+d.eIR.l:''),lgr:d.lgr,egr:d.egr,agrSel:d.agrSel,agr:d.agr,latRF:d.latRF,exRF:d.exRF,latBase:d.latBase,exBase:d.exBase,latDiscrim:d.latDiscrim,exDiscrim:d.exDiscrim,combinedDiscrim:d.combinedDiscrim,lowerBase:d.lowerBase,lowerGrade:d.lowerGrade,bestEst:d.bestEst,extrap:d.extrapolated,excluded:false});
+  });
+
+  const Tused=latT; // T is now a single combined value built from per-pair conservative calculations
+  const Lbase=calcL(Tused,pop);
+
+  if(excludedRows.length>0){lines.push('EXCLUDED PAIRS:');excludedRows.forEach(l=>lines.push(l));lines.push('');}
+  lines.push('─'.repeat(50));
+  lines.push(`T (combined conservative value): ${fmt(Tused)}`);
+  lines.push(`log₁₀(T): ${Math.log10(Tused).toFixed(6)}`);
+  lines.push(`N (fingerprints): ${pop.toLocaleString()}`);
+  lines.push(`L = 120 × N / (T × log₁₀T) = ${fmtL(Lbase)}`);
+
+  document.getElementById('r-lat-t').textContent=fmt(Tused);
+  document.getElementById('r-ex-t').textContent='—';
+  document.getElementById('r-l').textContent=fmtL(Lbase);
+  document.getElementById('breakdown-text').textContent=lines.join('\n');
+
+  function verdictFor(L){
+    if(L<=1)return{cls:'v-id',title:`L = ${fmtL(L)} — Identification May Be Supported`,text:`The estimated lookalike count is ${fmtL(L)} — less than one in the assessed population. Subject to examiner judgment, this arrangement may support identification. The T-Model's conservative bias means the true count is likely lower still.`};
+    if(L<=2)return{cls:'v-border',title:`L = ${fmtL(L)} — Borderline`,text:`The estimated lookalike count is ${fmtL(L)}. Just above the identification threshold. Seek additional qualifying features. If no further features can be found, the conclusion should be recorded as inconclusive rather than identification.`};
+    return{cls:'v-insuff',title:`L = ${fmtL(L)} — Insufficient for Identification`,text:`The estimated lookalike count is ${fmtL(L)}. This arrangement is not sufficiently rare against this population to support identification. Additional corresponding features required.`};
+  }
+  const v=verdictFor(Lbase);
+  const vb=document.getElementById('verdict-box');
+  vb.className='verdict '+v.cls;
+  vb.innerHTML=`<div class="verdict-title">${v.title}</div><p>${v.text}</p>`;
+
+  // Sufficiency table
+  const sb=document.getElementById('suff-body');sb.innerHTML='';
+  const userPop={n:pop,desc:'User-entered population',user:true};
+  const allPops=[userPop,...POPS.filter(p=>p.n!==pop)];
+  allPops.forEach(p=>{
+    const L=calcL(Tused,p.n);
+    let pill,pillCls;
+    if(L<=1){pill='Supported';pillCls='pill-yes';}
+    else if(L<=2){pill='Borderline';pillCls='pill-border';}
+    else{pill='Insufficient';pillCls='pill-no';}
+    const tr2=document.createElement('tr');
+    if(p.user){tr2.style.fontWeight='600';tr2.style.background='#fffdf5';}
+    tr2.innerHTML=`<td>${fmtPop(p.n)}</td><td>${p.desc}${p.user?' ← your input':''}</td><td style="font-family:'Source Code Pro',monospace;">${fmtL(L)}</td><td><span class="suff-pill ${pillCls}">${pill}</span></td>`;
+    sb.appendChild(tr2);
+  });
+
+  // Case record
+  const now=new Date();
+  const ds=now.toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  const ts=now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  let cr=`<h3>T-Model Case Record</h3>`;
+  cr+=`<p><strong>Date:</strong> ${ds} at ${ts}</p>`;
+  cr+=`<p><strong>Population assessed:</strong> ${pop.toLocaleString()} fingerprints</p>`;
+  cr+=`<p style="margin-top:0.5rem;"><strong>Feature pairs assessed (one per row):</strong></p>`;
+  cr+=`<table style="width:100%;border-collapse:collapse;font-size:0.72rem;margin-top:0.4rem;">`;
+  cr+=`<tr style="background:var(--cream);"><th style="padding:0.3rem 0.4rem;text-align:left;">#</th><th>Latent Feature</th><th>Exemplar Feature</th><th>Lat Grade</th><th>Ex Grade</th><th>Agreement</th><th>Lower Shape</th><th>Lower Grade</th><th>Pair Value</th><th>Status</th></tr>`;
+  caseRows.forEach((r,i)=>{
+    const lgrL=r.lgr===1?'A':r.lgr===0.75?'B':r.lgr===0.5?'C':r.lgr===0.25?'D':'F';
+    const egrL=r.egr===1?'A':r.egr===0.75?'B':r.egr===0.5?'C':r.egr===0.25?'D':'F';
+    const lowerGrL=r.excluded?'—':(r.lowerGrade===1?'A':r.lowerGrade===0.75?'B':r.lowerGrade===0.5?'C':r.lowerGrade===0.25?'D':'F');
+    const agrLabel=r.agrSel===1?'Excellent':r.agrSel===0.5?'Satisfactory':'No value';
+    const status=r.excluded?'<span style="color:#8b2020;font-weight:700;">EXCLUDED</span>':'<span style="color:#1a5c32;">✓ Included</span>';
+    const bg=r.excluded?'background:#fff5f5;':'';
+    cr+=`<tr style="border-bottom:1px solid #eee;${bg}"><td style="padding:0.22rem 0.4rem;text-align:center;">${i+1}</td><td style="padding:0.22rem 0.4rem;">${r.latLabel}</td><td>${r.exLabel}</td><td style="text-align:center;">Grade ${lgrL}</td><td style="text-align:center;">Grade ${egrL}</td><td style="text-align:center;">${agrLabel}</td><td style="text-align:center;">${r.excluded?'—':fmt(r.lowerBase)}</td><td style="text-align:center;">${lowerGrL}</td><td style="text-align:center;font-weight:700;">${r.excluded?'EXCL':fmt(r.combinedDiscrim)}</td><td style="text-align:center;">${status}</td></tr>`;
+  });
+  cr+=`</table>`;
+  cr+=`<p style="margin-top:0.6rem;"><strong>T value (combined conservative):</strong> ${fmt(Tused)}</p>`;
+  cr+=`<p><strong>log₁₀(T):</strong> ${Math.log10(Tused).toFixed(6)}</p>`;
+  cr+=`<p><strong>Formula:</strong> L = 120 × N / (T × log₁₀T)</p>`;
+  cr+=`<p><strong>L value:</strong> ${fmtL(Lbase)}</p>`;
+  cr+=`<p><strong>Error direction:</strong> Conservative — T-Model over-predicts feature frequency; true lookalike count is likely lower.</p>`;
+  cr+=`<p style="margin-top:0.5rem;"><strong>Conclusion:</strong> ${v.title}</p>`;
+  if(hasExtrap)cr+=`<p style="margin-top:0.4rem;font-style:italic;color:var(--amber);"><strong>Note:</strong> One or more features use position values at 6+ IR (extrapolated; not close-match validated). L value should be treated as an estimate.</p>`;
+  if(hasBest)cr+=`<p style="margin-top:0.4rem;font-style:italic;color:var(--amber);"><strong>Note:</strong> One or more feature values are best-estimate figures pending extended close match validation.</p>`;
+
+  document.getElementById('case-record').innerHTML=cr;
+  document.getElementById('results').style.display='block';
+  document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function resetAll(){
+  document.getElementById('paired-body').innerHTML='';
+  document.getElementById('population').value='3000000000';
+  rowCount=0;
+  document.getElementById('results').style.display='none';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// Start with one default row
+addRow();
+setTimeout(()=>{
+  const tbody=document.getElementById('paired-body');
+  const firstRow=tbody.querySelector('tr');
+  if(!firstRow)return;
+  const rid=firstRow.id;
+  const lft=document.getElementById(rid+'_lft');
+  const eft=document.getElementById(rid+'_eft');
+  if(lft){lft.value='er_f';onFtChange(rid+'_lft',rid+'_lircell');}
+  if(eft){eft.value='er_f';onFtChange(rid+'_eft',rid+'_eircell');}
+},50);
+</script>
+</body>
+</html>
