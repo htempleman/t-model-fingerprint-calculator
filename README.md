@@ -14,7 +14,7 @@ The T-Model is described in full in:
 
 Templeman, H. — *T-Model v. 10.1: A Quantitative-Qualitative Framework for Latent Fingerprint Identification*
 
-Full title, author name, publisher name (or "Self-published" if going through KDP), year of publication, ISBN number.
+The T-Model A Quantitative-Qualitative Framework for Latent Fingerprint Identification, Henry Templeman, Self-published through KDP, 2026, ISBN: 9798180412881.
 
 ## What the Calculator Does
 
