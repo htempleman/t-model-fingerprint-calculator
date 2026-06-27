@@ -133,7 +133,7 @@ Connectivity disagreements (one impression shows an ending ridge, the other a bi
 | L Value | Verdict |
 |---|---|
 | L < 1 | Supported — arrangement is sufficient for identification against the stated population |
-| 1 ≤ L ≤ 2 | Borderline — review all inputs carefully before reporting |
+| 0.5 ≤ L ≤ 2 | Borderline — review all inputs carefully before reporting |
 | L > 2 | Insufficient — arrangement does not support identification against the stated population |
 
 ## Output
