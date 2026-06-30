@@ -174,7 +174,7 @@ The model has been tested against three of the most extensively documented finge
 
 Full methodology, experimental results, and theoretical foundation are published in:
 
-Templeman, H. — *T-Model v. 10.1: A Quantitative-Qualitative Framework for Latent Fingerprint Identification*
+Templeman, H. —  *The T-Model: A Quantitative-Qualitative Framework for Latent Fingerprint Identification*
 
 ## License and Use
 
