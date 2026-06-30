@@ -192,7 +192,7 @@ The author makes no warranty, express or implied, regarding the calculator's fit
 
 ## Contact
 
-The T-Model's methodology, values, and experimental results are published in full in the accompanying book. Researchers who wish to test, challenge, or extend the model have all the information needed to do so independently. The author is not available for correspondence.
+The T-Model's methodology, values, and experimental results are published in full in the accompanying book. Researchers who wish to test, challenge, or extend the model have all the information needed to do so independently. The author is retired and not available for correspondence.
 
 ---
 
