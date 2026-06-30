@@ -113,19 +113,19 @@ When connectivity is ambiguous — that is, when a feature cannot be determined 
 
 | Grade | Description | Reduction Factor |
 |---|---|---|
-| A | No distortion — crystal clear, highly reliable | 1.00 |
-| B | Low distortion — clear, reliable | 0.75 |
-| C | Moderate distortion — somewhat clear, less reliable | 0.50 |
-| D | High distortion — mostly obscured, position inferred | 0.25 |
-| F | Very high distortion — excluded entirely | 0 |
+| A | No distortion — visually clear and reliable | 1.00 |
+| B | Low distortion — appears visually uncloear or unreliable | 0.75 |
+| C | Moderate distortion — appears unclear and unreliable | 0.50 |
+| D | High distortion — appears obscured, orientation and position reliably predictable | 0.25 |
+| F | Very high distortion — too distorted to analyze, excluded entirely | 0 |
 
 ## Quality of Agreement
 
 | Level | Description | Reduction Factor |
 |---|---|---|
-| Excellent | Full correspondence, no reservations | 1.00 |
-| Satisfactory | Correspondence with minor reservations | 0.50 |
-| Unsatisfactory | Correspondence cannot be reliably established — excluded | 0 |
+| Excellent | Ridge type, path, and spatial relationship agree | 1.00 |
+| Satisfactory | Ridge type and path does not agree, spatial relationship agrees | 0.50 |
+| Unsatisfactory | Spatial relationship does not agree — excluded | 0 |
 
 Connectivity disagreements (one impression shows an ending ridge, the other a bifurcation, at the same spatial location) that are within spatial tolerance should be rated Satisfactory.
 
