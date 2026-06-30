@@ -38,6 +38,7 @@ The calculator is a single self-contained HTML file. No installation, no server,
 2. Open it in any modern web browser (Safari, Chrome, Firefox, Edge)
 3. To add it to your iPad or iPhone home screen: open in Safari → Share → Add to Home Screen
 4. To save to desktop: open in browser → File → Save As
+5. Or, access the live calculator here: htempleman.github.io/t-model-fingerprint-calculator/tmodel_calculator_v10.1.html
 
 ## Input Fields
 
