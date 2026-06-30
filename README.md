@@ -54,7 +54,7 @@ Enter the number of individual fingerprints in the relevant human population:
 Before entering features, confirm that all corresponding feature pairs have been assessed against the T-Model's elasticity thresholds:
 
 - Linear displacement ≤ 20% (measure with millimeter ruler if needed)
-- Rotational displacement ≤ 22.5 degrees (measure with protractor if needed)
+- Rotational displacement ≤ 10 degrees (measure with protractor if needed)
 - Features that exceed either threshold must be excluded
 
 An expandable step-by-step measurement guide is available within the calculator.
