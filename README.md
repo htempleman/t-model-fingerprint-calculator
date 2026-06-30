@@ -105,7 +105,7 @@ When connectivity is ambiguous — that is, when a feature cannot be determined 
 | 5 IR | 62 |
 | 6 IR | 968 * |
 | 7 IR | 37,812 * |
-| 8+ IR | 968,000 * |
+| 8+ IR | 3,692,578 * |
 
 \* Values at 6–8 IR are mathematical extrapolations of the confirmed 3–5 IR pattern and have not been independently validated through close match experiments. Flag in case record when used.
 
