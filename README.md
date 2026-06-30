@@ -34,7 +34,7 @@ where N is the number of individual fingerprints in the relevant population, T i
 
 The calculator is a single self-contained HTML file. No installation, no server, no internet connection required.
 
-1. Download `tmodel_calculator_v4.html`
+1. Download `tmodel_calculator.html`
 2. Open it in any modern web browser (Safari, Chrome, Firefox, Edge)
 3. To add it to your iPad or iPhone home screen: open in Safari → Share → Add to Home Screen
 4. To save to desktop: open in browser → File → Save As
